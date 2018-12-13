@@ -1,0 +1,251 @@
+import cv2
+import numpy as np
+import pyautogui
+import time
+
+cam = cv2.VideoCapture(0)
+
+lowerBound = np.array([20, 100, 100])
+upperBound = np.array([30, 255, 255])
+
+kernelOpen = np.ones((3, 3))
+kernelClose = np.ones((3, 3))
+topleft = []
+bottomright = []
+width = cam.get(cv2.CAP_PROP_FRAME_WIDTH)
+height = cam.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+def keyboard():
+
+
+    mr = 11
+    keywidth = int(width/mr)
+    keyboard_keys = []
+    row1 = keywidth*11
+    row2 = keywidth*10
+    row3 = keywidth*9
+    row4 = keywidth*7
+    row5 = keywidth*5
+    x1 = 0
+    y1 = int((height - keywidth*5)/2)
+    x2 = keywidth + x1
+    y2 = keywidth + y1
+    x3 = x1
+    y3 = y1
+
+    values = "1 2 3 4 5 6 7 8 9 0 bs"
+    values = values.split(" ")
+    for value in values:
+        if value == "bs":
+            keyboard_keys.append([value, (x1, y1), (x2, y2), (int((x1+x2)/2)-20, int((y1+y2)/2)+10)])
+        else:
+            keyboard_keys.append([value, (x1, y1), (x2, y2), (int((x1 + x2) / 2) - 5, int((y1 + y2) / 2) + 10)])
+
+        x1 += keywidth
+        x2 += keywidth
+
+    x1 = x3
+    y1 = y3
+
+
+    x1 = int((row1-row2)/2)+x1
+    y1 = y1 + keywidth
+    x2 = keywidth +x1
+    y2 = keywidth + y1
+    x3 = x1
+    y3 = y1
+    values = "qwertyuiop"
+    for value in values:
+        keyboard_keys.append([value, (x1, y1), (x2, y2), (int((x1 + x2) / 2) - 5, int((y1 + y2) / 2) + 10)])
+
+        x1 += keywidth
+        x2 += keywidth
+
+    x1 = x3
+    y1 = y3
+
+    x1 = int((row2 - row3) / 2) + x1
+    y1 = y1 + keywidth
+    x2 = keywidth + x1
+    y2 = keywidth + y1
+    x3 = x1
+    y3 = y1
+    values = "asdfghjkl"
+    for value in values:
+        keyboard_keys.append([value, (x1, y1), (x2, y2), (int((x1 + x2) / 2) - 5, int((y1 + y2) / 2) + 10)])
+
+        x1 += keywidth
+        x2 += keywidth
+
+    x1 = x3
+    y1 = y3
+
+
+
+    x1 = int((row3 - row4) / 2) + x1
+    y1 = y1 + keywidth
+    x2 = keywidth + x1
+    y2 = keywidth + y1
+    x3 = x1
+    y3 = y1
+    values = "zxcvbnm"
+    for value in values:
+        keyboard_keys.append([value, (x1, y1), (x2, y2), (int((x1 + x2) / 2) - 5, int((y1 + y2) / 2) + 10)])
+
+        x1 += keywidth
+        x2 += keywidth
+
+    x1 = x3
+    y1 = y3
+
+    x1 = int((row4 - row5) / 2) + x1
+    y1 = y1 + keywidth
+    x2 = 5*keywidth + x1
+    y2 = keywidth + y1
+    x3 = x1
+    y3 = y1
+    values = " "
+    for value in values:
+        keyboard_keys.append([value, (x1, y1), (x2, y2), (int((x1 + x2) / 2) - 5, int((y1 + y2) / 2) + 10)])
+        x1 += keywidth
+        x2 += keywidth
+
+    x1 = x3
+    y1 = y3
+
+    return keyboard_keys
+
+def numpad():
+    cv2.destroyAllWindows()
+    while True:
+        ret, img = cam.read()
+        img = cv2.flip(img, 1)
+
+        for i in range(4):
+            for j in range(3):
+                cv2.rectangle(img, (460 + j * 50, 190 + i * 50), (460 + 50 + j * 50, 190 + 50 + i * 50), (0, 255, 255),
+                              2)
+                topleft.append((460 + j * 50, 190 + i * 50))
+                bottomright.append((460 + 50 + j * 50, 190 + 50 + i * 50))
+                if i <= 2:
+                    cv2.putText(img, str(3 * i + j + 1), (460 + 50 * j + 25, 190 + 50 * i + 25),
+                                cv2.FONT_HERSHEY_SIMPLEX,
+                                0.5, (255, 255, 255), 2)
+                cv2.putText(img, '0', (460 + 50 * 1 + 25, 190 + 50 * 3 + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                            (255, 255, 255), 2)
+        a,x,y=area(img)
+        del topleft[-1]
+        del topleft[9]
+        del bottomright[-1]
+        del bottomright[9]
+        click(x,y)
+        cv2.imshow("img", img)
+        k = cv2.waitKey(10)
+        if k == ord('q'):
+            break
+    cam.release()
+    cv2.destroyAllWindows()
+
+
+
+def Kpad():
+    cv2.destroyAllWindows()
+    while True:
+        ret, img = cam.read()
+        img = cv2.flip(img, 1)
+        keyboard_keys = keyboard()
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        for key in keyboard_keys:
+            cv2.putText(img, key[0], key[3], font, 1, (0, 255, 0))
+            cv2.rectangle(img, key[1], key[2], (255, 0, 0), thickness=2)
+        cv2.imshow("img", img)
+        k = cv2.waitKey(10)
+
+        if k == ord('q'):
+            break
+
+    cam.release()
+    cv2.destroyAllWindows()
+
+
+
+def start():
+    while True:
+        ret, img = cam.read()
+        img = cv2.flip(img, 1)
+        initial = img.copy()
+
+        cv2.rectangle(initial, (100, 190), (200, 290), (0, 255, 0), 4)
+        cv2.putText(initial, "KEYPAD", (150, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        cv2.rectangle(initial, (450, 190), (550, 290), (0, 255, 0), 4)
+        cv2.putText(initial, "NUMPAD", (500, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        cv2.imshow("initial", initial)
+
+        k = cv2.waitKey(1)
+        if k == ord('k'):
+            Kpad()
+
+        if k == ord('n'):
+            numpad()
+
+def area(img):
+    while True:
+        ret, img1 = cam.read()
+        img1 = cv2.flip(img1, 1)
+
+        imgHSV = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV)
+        mask = cv2.inRange(imgHSV, lowerBound, upperBound)
+
+        maskOpen = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernelOpen)
+        maskOpen = cv2.morphologyEx(maskOpen, cv2.MORPH_OPEN, kernelOpen)
+        maskOpen = cv2.morphologyEx(maskOpen, cv2.MORPH_OPEN, kernelOpen)
+        maskOpen = cv2.morphologyEx(maskOpen, cv2.MORPH_OPEN, kernelOpen)
+        maskClose = cv2.morphologyEx(maskOpen, cv2.MORPH_CROSS, kernelClose)
+
+        _, contours, heirarchy = cv2.findContours(maskClose, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        length = len(contours)
+        maxArea = -1
+        if length > 0:
+            for i in range(length):
+                temp = contours[i]
+                area = cv2.contourArea(temp)
+                if area > maxArea:
+                    maxArea = area
+                    ci = i
+            res = contours[ci]
+            cv2.drawContours(img, [res], 0, (0, 255, 0), 3)
+
+            M = cv2.moments(res)
+            if M["m00"] != 0:
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+            else:
+                cX, cY = 0, 0
+            return maxArea,cX,cY
+
+def click(x, y):
+
+    for xco in range(10):
+        if ((x >= topleft[xco][0] and x <= bottomright[xco][0]) and (y >= topleft[xco][1] and y <= bottomright[xco][1])):
+            if(xco == 9):                                                                       
+                print(0)
+                time.sleep(0.5)
+            else:
+                print(xco + 1)
+                time.sleep(0.5)
+
+
+
+
+
+
+while True:
+    start()
+    k = cv2.waitKey(20)
+    if k == ord('q'):
+        break
+
+
+cam.release()
+cv2.destroyAllWindows()
